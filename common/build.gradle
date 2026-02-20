@@ -13,14 +13,6 @@ dependencies {
 	//compileOnly "lithostitched-forge:1.0.0"
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDirs += 'assets'
-        }
-    }
-}
-
 repositories {
 
 }
