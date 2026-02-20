@@ -37,6 +37,50 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     }
 
     @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // First check preview widgets
+        for (Entry<T> entry : this.children()) {
+            T widget = entry.getWidget();
+            if (widget instanceof PresetEditorPage.Preview preview && widget.isMouseOver(mouseX, mouseY)) {
+                if (preview.mouseClicked(mouseX, mouseY, button)) {
+                    return true;
+                }
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        // Forward drag events to any preview widget (assuming only one)
+        for (Entry<T> entry : this.children()) {
+            T widget = entry.getWidget();
+            if (widget instanceof PresetEditorPage.Preview preview) {
+                // Always forward drag events to preview, regardless of mouse position
+                if (preview.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+                    return true;
+                }
+            }
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        // Forward scroll events to any preview widget (assuming only one)
+        for (Entry<T> entry : this.children()) {
+            T widget = entry.getWidget();
+            if (widget instanceof PresetEditorPage.Preview preview) {
+                // Always forward scroll events to preview, regardless of mouse position
+                if (preview.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+                    return true;
+                }
+            }
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
     protected boolean isSelectedItem(int i) {
         return this.renderSelected && Objects.equals(this.getSelected(), this.children().get(i));
     }
@@ -69,7 +113,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
 
         @Override
         public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTicks) {
-            int optionWidth = Math.min(396, width);
+            int optionWidth = Math.min(450, width);
             int padding = (width - optionWidth) / 2;
             widget.setX(left + padding);
             widget.setY(top);

@@ -134,7 +134,7 @@ public class WorldSettings {
         
         @Deprecated
         public int terrainScaler() {
-        	return Math.min(this.worldHeight, 256);
+        	return this.worldHeight;
         }
     }
 }

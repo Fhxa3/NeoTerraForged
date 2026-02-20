@@ -15,6 +15,7 @@ import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
@@ -74,10 +75,6 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 			}
 		}
 
-		this.zoom = PresetWidgets.createIntSlider(Optional.ofNullable(this.zoom).map(Slider::getLerpedValue).orElse(68.0D).intValue(), 1, 100, RTFTranslationKeys.GUI_SLIDER_ZOOM, (slider, value) -> {
-			this.regenerate();
-			return value;
-		});
 		this.renderMode = PresetWidgets.createCycle(ImmutableList.copyOf(RenderMode.values()), this.renderMode != null ? this.renderMode.getValue() : RenderMode.BIOME_TYPE, Optional.empty(), (button, value) -> {
 			this.regenerate();
 		}, RenderMode::name);
@@ -89,7 +86,6 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		this.preview = new Preview();
 		this.preview.regenerate();
 
-		this.right.addWidget(this.zoom);
 		this.right.addWidget(this.renderMode);
 		this.right.addWidget(this.seed);
 		this.right.addWidget(this.preview);
@@ -118,7 +114,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 		}
 	}
 	
-	public class Preview extends Button {
+	public class Preview extends AbstractWidget {
 	    private static final int FACTOR = 4;
 	    public static final int SIZE = (1 << 4) << FACTOR;
 	    private static final float[] LEGEND_SCALES = { 1, 0.9F, 0.75F, 0.6F };
@@ -133,19 +129,12 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    private Component[] legendLabels = { Component.translatable(RTFTranslationKeys.GUI_LABEL_PREVIEW_AREA), Component.translatable(RTFTranslationKeys.GUI_LABEL_PREVIEW_TERRAIN), Component.translatable(RTFTranslationKeys.GUI_LABEL_PREVIEW_BIOME) };
 	    
 	    private int offsetX, offsetZ;
-
+	    private boolean clicked = false;
+	    private int clickOffsetX, clickOffsetZ;
+	    private int zoomValue = 68; // default zoom value
+	
 	    public Preview() {
-	        super(-1, -1, -1, -1, CommonComponents.EMPTY, (b) -> {
-		    	System.out.println("clicked");
-	        	Minecraft mc = Minecraft.getInstance();
-	        	MouseHandler mouse = mc.mouseHandler;
-	        	if(b instanceof Preview self) {
-			        if (self.updateLegend((int) mouse.xpos(), (int) mouse.ypos()) && !self.hoveredCoords.isEmpty()) {
-			            self.playDownSound(Minecraft.getInstance().getSoundManager());
-			            PresetEditorPage.this.screen.minecraft.keyboardHandler.setClipboard(self.hoveredCoords);
-			        }
-	        	}
-	        }, DEFAULT_NARRATION);
+	        super(-1, -1, -1, -1, CommonComponents.EMPTY);
 	    }
 
 	    public void regenerate() {
@@ -168,17 +157,9 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 				.orElseGet(PerformanceConfig::makeDefault);
 	        GeneratorContext generatorContext = GeneratorContext.makeUncached(preset, noises, (int) settings.options().seed(), FACTOR, 0, config.batchCount());
 	        
-	        this.centerX = 0;
-	        this.centerZ = 0;
-	        
-	        if(preset.world().properties.spawnType == SpawnType.CONTINENT_CENTER) {
-	        	long nearestContinentCenter = generatorContext.lookup.getHeightmap().continent().getNearestCenter(this.offsetX, this.offsetZ);
-	        	this.centerX = PosUtil.unpackLeft(nearestContinentCenter);
-	        	this.centerZ = PosUtil.unpackRight(nearestContinentCenter);
-	        } else {
-	        	this.centerX = 0;
-	        	this.centerZ = 0;
-	        }
+	        // Ignore continent center snapping, use offset directly
+	        this.centerX = this.offsetX;
+	        this.centerZ = this.offsetZ;
 
 	        this.tile = generatorContext.generator.generateZoomed(this.centerX, this.centerZ, this.getZoom(), false).join();
 	        RenderMode renderMode = PresetEditorPage.this.renderMode.getValue();
@@ -201,28 +182,107 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    public void close() throws Exception {
 	    	this.texture.close();
 	    	try {
-				CacheManager.clear();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+	   CacheManager.clear();
+	  } catch (Exception e) {
+	   e.printStackTrace();
+	  }
 	    }
-
+	
+	    @Override
+	    public void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+	        // No narration needed
+	    }
+	
 	    @Override
 	    public void renderWidget(GuiGraphics guiGraphics, int mx, int my, float partialTicks) {
-	    	int x = this.getX();
-	    	int y = this.getY();
-	    	
-	    	this.height = this.getWidth();
+	        int x = this.getX();
+	        int y = this.getY();
+	        
+	        this.height = this.getWidth(); // ensure height equals width for click area
 	        RenderSystem.enableBlend();
 	        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 	        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-	    	guiGraphics.blit(this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
+	        guiGraphics.blit(this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
 
-	    	this.updateLegend(mx, my);
+	        this.updateLegend(mx, my);
 
-	    	this.renderLegend(guiGraphics, mx, my, this.legendLabels, this.legendValues, x, y + this.width, 10, 0xFFFFFF);
+	        this.renderLegend(guiGraphics, mx, my, this.legendLabels, this.legendValues, x, y + this.width, 10, 0xFFFFFF);
 	    }
+	
+	    @Override
+	    public void onClick(double mouseX, double mouseY) {
+	        if (Minecraft.getInstance().screen != null) {
+	            Minecraft.getInstance().screen.setFocused(this);
+	        }
+	        clicked = true;
+	        clickOffsetX = offsetX;
+	        clickOffsetZ = offsetZ;
+	    }
+	
+	    @Override
+	    protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+	        int zoom = getZoom();
+	        double blocksPerPixel = zoom; // preview size = 256
+	        offsetX -= dragX * blocksPerPixel;
+	        offsetZ -= dragY * blocksPerPixel;
+	        regenerate();
+	    }
+	
+	    @Override
+	    public void onRelease(double mouseX, double mouseY) {
+	        if (!clicked) {
+	            return;
+	        }
+	        clicked = false;
+	
+	        // Check if drag distance is minimal (i.e., click)
+	        int dragDeltaX = offsetX - clickOffsetX;
+	        int dragDeltaZ = offsetZ - clickOffsetZ;
+	        if (Math.abs(dragDeltaX) <= 4 && Math.abs(dragDeltaZ) <= 4) {
+	            // Treat as click: copy coordinates if hoveredCoords is not empty
+	            if (updateLegend((int) mouseX, (int) mouseY) && !hoveredCoords.isEmpty()) {
+	                playDownSound(Minecraft.getInstance().getSoundManager());
+	                PresetEditorPage.this.screen.minecraft.keyboardHandler.setClipboard(hoveredCoords);
+	            }
+	        }
+	        // Otherwise, drag already applied in onDrag, nothing more to do
+	    }
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	    return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+	}
 
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+	    if (this.isMouseOver(mouseX, mouseY)) {
+	        // Dynamic step: larger when zoom is small (close to 1), smaller when zoom is large (close to 100)
+	        int dynamicStep = Math.max(1, (100 - zoomValue) / 10);
+	        int step = (int) Math.signum(scrollY) * dynamicStep;
+	        zoomValue = Math.max(1, Math.min(100, zoomValue + step));
+	        regenerate();
+	        return true;
+	    }
+	    return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
+	
+	    @Override
+	    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	        boolean over = isMouseOver(mouseX, mouseY);
+	        if (over && button == 0) {
+	            // Ensure onClick is called even if super.mouseClicked doesn't call it
+	            onClick(mouseX, mouseY);
+	        }
+	        boolean result = super.mouseClicked(mouseX, mouseY, button);
+	        // Always return true if mouse is over to indicate event handled
+	        return over || result;
+	    }
+	
+	    @Override
+	    public boolean isMouseOver(double mouseX, double mouseY) {
+	        return super.isMouseOver(mouseX, mouseY);
+	    }
+	
 	    private boolean updateLegend(int mx, int my) {
 	        if (this.tile != null) {
 	            int left = this.getX();
@@ -301,7 +361,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    }
 	
 	    private int getZoom() {
-	        return NoiseUtil.round(1.5F * (101 - (float) PresetEditorPage.this.zoom.getLerpedValue()));
+	        return NoiseUtil.round(1.5F * (101 - (float) this.zoomValue));
 	    }
 	
 	    private static String getTerrainName(Cell cell) {

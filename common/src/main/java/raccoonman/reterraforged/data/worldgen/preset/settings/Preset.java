@@ -49,6 +49,7 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 		return new Preset(this.world.copy(), this.surface.copy(), this.caves.copy(), this.climate.copy(), this.terrain.copy(), this.rivers.copy(), this.filters.copy(), this.structures.copy(), this.miscellaneous.copy());
 	}
 
+	@SuppressWarnings("unchecked")
 	public HolderLookup.Provider buildPatch(RegistryAccess registries) {
 		RegistrySetBuilder builder = new RegistrySetBuilder();
 		this.addPatch(builder, RTFRegistries.PRESET, (preset, ctx) -> ctx.register(KEY, preset));
@@ -59,7 +60,7 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 			PresetConfiguredFeatures.bootstrap(preset, ctx);
 		});
 		this.addPatch(builder, Registries.CONFIGURED_CARVER, (preset, ctx) -> {
-			PresetConfiguredCarvers.bootstrap(preset, ctx);	
+			PresetConfiguredCarvers.bootstrap(preset, ctx);
 		});
 		this.addPatch(builder, Registries.PLACED_FEATURE, PresetPlacedFeatures::bootstrap);
 		this.addPatch(builder, Registries.BIOME, PresetBiomeData::bootstrap);
@@ -72,6 +73,18 @@ public record Preset(WorldSettings world, SurfaceSettings surface, CaveSettings 
 
 		Cloner.Factory factory = new Cloner.Factory();
 		RegistryDataLoader.WORLDGEN_REGISTRIES.forEach(registryData -> registryData.runWithArguments(factory::addCodec));
+		// 添加其他已加载的注册表，确保所有注册表都有克隆器
+		registries.registries().forEach(entry -> {
+			ResourceKey<? extends Registry<?>> key = entry.key();
+			Registry<?> registry = entry.value();
+			try {
+				Codec<?> codec = registry.byNameCodec();
+				// 未经检查的转换，但这是安全的，因为编解码器与注册表类型匹配
+				factory.addCodec((ResourceKey) key, (Codec) codec);
+			} catch (UnsupportedOperationException e) {
+				// 某些注册表可能没有byNameCodec，忽略
+			}
+		});
 		factory.addCodec(RTFRegistries.NOISE, Noise.DIRECT_CODEC);
 		factory.addCodec(RTFRegistries.BIOME_MODIFIER, BiomeModifier.CODEC);
 		factory.addCodec(RTFRegistries.STRUCTURE_RULE, StructureRule.DIRECT_CODEC);
