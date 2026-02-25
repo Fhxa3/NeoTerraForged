@@ -19,8 +19,8 @@ public class BufferBitSet {
         this.sizeX = Math.max(x1, x2) - this.minX;
         this.sizeY = Math.max(y1, y2) - this.minY;
         this.sizeZ = Math.max(z1, z2) - this.minZ;
-        this.sizeXZ = this.sizeX * this.sizeZ;
-        int size = this.sizeX * this.sizeY * this.sizeZ;
+        this.sizeXZ = safeMultiply(this.sizeX, this.sizeZ);
+        int size = safeMultiply(this.sizeX, this.sizeY, this.sizeZ);
         if (this.bitSet == null || this.bitSet.length() < size) {
         	this.bitSet = new BitSet(size);
         } else {
@@ -54,5 +54,27 @@ public class BufferBitSet {
 
     private int indexOf(int x, int y, int z) {
         return (y * this.sizeXZ) + (z * this.sizeX) + x;
+    }
+
+    private static int safeMultiply(int a, int b) {
+        long product = (long) a * (long) b;
+        if (product <= 0) {
+            return 0;
+        }
+        if (product > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) product;
+    }
+
+    private static int safeMultiply(int a, int b, int c) {
+        long product = (long) a * (long) b * (long) c;
+        if (product <= 0) {
+            return 0;
+        }
+        if (product > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) product;
     }
 }
