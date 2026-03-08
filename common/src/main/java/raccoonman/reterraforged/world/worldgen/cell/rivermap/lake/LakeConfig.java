@@ -19,7 +19,7 @@ public class LakeConfig {
         this.chance = builder.chance;
         this.sizeMin = builder.sizeMin;
         this.sizeMax = builder.sizeMax;
-        this.sizeRange = this.sizeMax - this.sizeMin;
+        this.sizeRange = Math.max(0, this.sizeMax - this.sizeMin);
         this.bankMin = builder.bankMin;
         this.bankMax = builder.bankMax;
         this.distanceMin = builder.distanceMin;
