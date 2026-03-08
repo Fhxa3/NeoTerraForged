@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import com.google.common.base.Suppliers;
 
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
@@ -19,6 +20,8 @@ import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunction.NoiseHolder;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.resources.ResourceKey;
+import java.util.Optional;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.SurfaceSystem;
@@ -58,6 +61,7 @@ class MixinRandomState {
 	private Preset preset;
 	
 	private long seed;
+	private NoiseGeneratorSettings noiseGeneratorSettings;
 	
 	@Redirect(
 		at = @At(
@@ -69,6 +73,7 @@ class MixinRandomState {
 	)
 	private NoiseRouter RandomState(NoiseRouter router, DensityFunction.Visitor visitor, NoiseGeneratorSettings noiseGeneratorSettings, HolderGetter<NormalNoise.NoiseParameters> params, final long seed) {
 		this.seed = seed;
+		this.noiseGeneratorSettings = noiseGeneratorSettings;
 		this.densityFunctionWrapper = new DensityFunction.Visitor() {
 			
 			@Override
@@ -92,6 +97,15 @@ class MixinRandomState {
 	}
 
 	public void reterraforged$RTFRandomState$initialize(RegistryAccess registries) {
+		// 只在主世界应用RTF地形
+		if (this.noiseGeneratorSettings != null) {
+			Optional<Holder.Reference<NoiseGeneratorSettings>> overworldHolder = registries.lookupOrThrow(Registries.NOISE_SETTINGS).get(NoiseGeneratorSettings.OVERWORLD);
+			if (overworldHolder.isPresent() && overworldHolder.get().value() == this.noiseGeneratorSettings) {
+			} else {
+				this.hasContext = false;
+				return;
+			}
+		}
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
 		RegistryLookup<DensityFunction> functions = registries.lookupOrThrow(Registries.DENSITY_FUNCTION);
