@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -44,7 +44,7 @@ dependencies {
 //	compileOnly "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 //  modImplementation("com.github.glitchfiend:TerraBlender-forge:${rootProject.minecraft_version}-${rootProject.terrablender_version}")
     
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionNeoForge")) { transitive false }
 }
 
@@ -71,21 +71,17 @@ processResources {
 shadowJar {
     exclude "fabric.mod.json"
     exclude "architectury.common.json"
+    exclude "reterraforged.accesswidener"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set("shadow")
-}
-
-remapJar {
-    atAccessWideners.add('reterraforged.accesswidener')
-
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
+    archiveClassifier.set("neoforge-${rootProject.minecraft_version}")
 }
 
 jar {
     archiveClassifier.set("dev")
 }
+
+assemble.dependsOn shadowJar
 
 processResources {
     duplicatesStrategy "exclude"

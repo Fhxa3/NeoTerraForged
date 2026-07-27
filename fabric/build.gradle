@@ -1,5 +1,5 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.gradleup.shadow" version "9.6.1"
 }
 
 architectury {
@@ -32,11 +32,11 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modApi("net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}") { exclude group: 'net.fabricmc', module: 'fabric-loader' }
-// 	modImplementation("com.github.glitchfiend:TerraBlender-fabric:${rootProject.minecraft_version}-${rootProject.terrablender_version}")
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    api("net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}") { exclude group: 'net.fabricmc', module: 'fabric-loader' }
+// 	implementation("com.github.glitchfiend:TerraBlender-fabric:${rootProject.minecraft_version}-${rootProject.terrablender_version}")
     
-    common(project(path: ":common", configuration: "namedElements")) { transitive false }
+    common(project(path: ":common")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
 }
 
@@ -62,19 +62,14 @@ shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowCommon]
-    archiveClassifier.set("dev-shadow")
-}
-
-remapJar {
-    injectAccessWidener = true
-    input.set shadowJar.archiveFile
-    dependsOn shadowJar
     archiveClassifier.set("fabric-${rootProject.minecraft_version}")
 }
 
 jar {
     archiveClassifier.set("dev")
 }
+
+assemble.dependsOn shadowJar
 
 sourcesJar {
     def commonSources = project(":common").sourcesJar

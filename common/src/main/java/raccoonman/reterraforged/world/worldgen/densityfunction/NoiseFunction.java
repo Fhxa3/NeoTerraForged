@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
 import net.minecraft.util.KeyDispatchDataCodec;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
 
 public record NoiseFunction(Holder<Noise> noise, int seed) implements MarkerFunction.Mapped {
@@ -34,14 +33,6 @@ public record NoiseFunction(Holder<Noise> noise, int seed) implements MarkerFunc
 		@Override
 		public KeyDispatchDataCodec<NoiseFunction.Marker> codec() {
 			return new KeyDispatchDataCodec<>(CODEC);
-		}
-
-		@Override
-		public DensityFunction mapAll(Visitor visitor) {
-			DensityFunction self = visitor instanceof Noise.Visitor noiseVisitor ?
-				new Marker(Holder.direct(this.noise.value().mapAll(noiseVisitor))) : 
-				this;
-			return visitor.apply(self);
 		}
 	}
 }

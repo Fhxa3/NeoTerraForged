@@ -2,7 +2,6 @@ package raccoonman.reterraforged.client.gui.screen.page;
 
 import java.util.Optional;
 
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -66,12 +65,6 @@ public abstract class LinkedPageScreen extends Screen {
 		this.addRenderableWidget(this.nextButton);
 	}
 
-	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		super.renderBackground(guiGraphics, mouseY, mouseY, partialTicks);
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
-	}
-	
 	@Override
 	public void onClose() {
 		this.currentPage.onClose();

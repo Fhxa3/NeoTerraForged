@@ -27,10 +27,6 @@ public class Slider extends AbstractSliderButton {
         this.updateMessage();
     }
     
-    public void setValue(double value) {
-    	this.value = value;
-    }
-    
     public double getValue() {
     	return this.value;
     }

@@ -20,7 +20,7 @@ public class ColumnDecorator {
         if (chunk.getBlockState(pos).isAir()) {
             return;
         }
-        chunk.setBlockState(pos, state, false);
+        chunk.setBlockState(pos, state, 0);
     }
 	
     public static float sampleNoise(float x, float z, float scale, float bias) {

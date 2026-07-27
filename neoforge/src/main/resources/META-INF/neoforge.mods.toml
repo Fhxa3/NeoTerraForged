@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[4,)"
+loaderVersion="[1,)"
 license="MIT"
 
 [[mixins]]
@@ -7,6 +7,9 @@ license="MIT"
 
 [[mixins]]
     config = "reterraforged-neoforge.mixins.json"
+
+[[accessTransformers]]
+    file = "META-INF/accesstransformer.cfg"
 
 [[mods]]
     modId="reterraforged"
@@ -22,13 +25,13 @@ license="MIT"
 [[dependencies.reterraforged]]
     modId="neoforge"
     mandatory=true
-    versionRange="[21,)"
+    versionRange="[26.2,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.reterraforged]]
 	modId = "minecraft"
 	mandatory = true
-	versionRange = "[1.21.1,)"
+	versionRange = "[26.2,)"
 	ordering = "NONE"
 	side = "BOTH"

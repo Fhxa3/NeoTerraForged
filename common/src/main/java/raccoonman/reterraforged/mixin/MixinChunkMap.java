@@ -13,15 +13,15 @@ import com.mojang.datafixers.DataFixer;
 
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.thread.BlockableEventLoop;
+import net.minecraft.world.level.TicketStorage;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LightChunkGetter;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import raccoonman.reterraforged.world.worldgen.RTFRandomState;
 
 @Mixin(ChunkMap.class)
@@ -33,7 +33,7 @@ public class MixinChunkMap {
 		at = @At("TAIL"),
 		method = "<init>"
 	)
-	public void ChunkMap(ServerLevel serverLevel, LevelStorageSource.LevelStorageAccess storageAccess, DataFixer dataFixer, StructureTemplateManager templateLoader, Executor executor, BlockableEventLoop<Runnable> eventLoop, LightChunkGetter lightChunkGetter, ChunkGenerator chunkGenerator, ChunkProgressListener chunkProgressListener, ChunkStatusUpdateListener chunkStatusListener, Supplier<DimensionDataStorage> dimensionStorage, int viewDistance, boolean syncChunkWrites, CallbackInfo callback) {
+	public void ChunkMap(ServerLevel serverLevel, LevelStorageSource.LevelStorageAccess storageAccess, DataFixer dataFixer, StructureTemplateManager templateLoader, Executor executor, BlockableEventLoop<Runnable> eventLoop, LightChunkGetter lightChunkGetter, ChunkGenerator chunkGenerator, ChunkStatusUpdateListener chunkStatusListener, Supplier<SavedDataStorage> dimensionStorage, TicketStorage ticketStorage, int viewDistance, boolean syncChunkWrites, CallbackInfo callback) {
 		if((Object) this.randomState instanceof RTFRandomState rtfRandomState) {
 			rtfRandomState.initialize(serverLevel.registryAccess());
 		}

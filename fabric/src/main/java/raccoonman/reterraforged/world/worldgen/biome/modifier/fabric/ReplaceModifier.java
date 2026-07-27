@@ -29,7 +29,7 @@ record ReplaceModifier(GenerationStep.Decoration step, Optional<HolderSet<Biome>
 
 	@Override
 	public void apply(BiomeSelectionContext selectionContext, BiomeModificationContext modificationContext) {
-		if(this.biomes.isPresent() && !this.biomes.get().contains(selectionContext.getBiomeRegistryEntry())) {
+		if(this.biomes.isPresent() && !this.biomes.get().contains(selectionContext.getBiomeHolder())) {
 			return;
 		}
 		
@@ -43,7 +43,7 @@ record ReplaceModifier(GenerationStep.Decoration step, Optional<HolderSet<Biome>
 
 		featureSteps.set(index, this.replace(featureSteps.get(index)));
 		
-		this.rebuildFlowerFeatures(generationSettings);
+		this.rebuildBoneMealFeatures(generationSettings);
 	}
 	
 	private HolderSet<PlacedFeature> replace(HolderSet<PlacedFeature> features) {

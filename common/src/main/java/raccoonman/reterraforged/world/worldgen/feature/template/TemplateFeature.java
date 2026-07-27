@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Mirror;
@@ -57,7 +57,7 @@ public class TemplateFeature extends Feature<Config<?>> {
         if(world.getServer() instanceof RTFMinecraftServer rtfMinecraftServer) {
 	        DecoratorConfig<T> decoratorConfig = config.decorator();
 	        
-	        ResourceLocation templateName = nextTemplate(config.templates, rand);
+	        Identifier templateName = nextTemplate(config.templates, rand);
 	        FeatureTemplate template = rtfMinecraftServer.getFeatureTemplateManager().load(templateName);
 	        
 	        Dimensions dimensions = template.getDimensions(mirror, rotation);
@@ -69,7 +69,7 @@ public class TemplateFeature extends Feature<Config<?>> {
 	        Paste paste = pasteType.get(template);
 	        T buffer = placement.createContext();
 	        if (paste.apply(world, buffer, pos, mirror, rotation, placement, config.paste())) {
-	            ResourceLocation biome = world.getBiome(pos).unwrapKey().map(ResourceKey::registry).orElse(null);
+	            Identifier biome = world.getBiome(pos).unwrapKey().map(ResourceKey::registry).orElse(null);
 	            for (TemplateDecorator<T> decorator : decoratorConfig.getDecorators(biome)) {
 	                decorator.apply(world, buffer, rand, modified);
 	            }
@@ -82,7 +82,7 @@ public class TemplateFeature extends Feature<Config<?>> {
         }
     }
 
-	private static ResourceLocation nextTemplate(List<ResourceLocation> templates, RandomSource random) {
+	private static Identifier nextTemplate(List<Identifier> templates, RandomSource random) {
         return templates.get(random.nextInt(templates.size()));
     }
 
@@ -94,10 +94,10 @@ public class TemplateFeature extends Feature<Config<?>> {
         return Rotation.values()[random.nextInt(Rotation.values().length)];
     }
     
-	public record Config<T extends TemplateContext>(List<ResourceLocation> templates, TemplatePlacement<T> placement, PasteConfig paste, DecoratorConfig<T> decorator) implements FeatureConfiguration {
+	public record Config<T extends TemplateContext>(List<Identifier> templates, TemplatePlacement<T> placement, PasteConfig paste, DecoratorConfig<T> decorator) implements FeatureConfiguration {
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public static final Codec<Config<?>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-			ResourceLocation.CODEC.listOf().fieldOf("templates").forGetter(Config::templates),
+			Identifier.CODEC.listOf().fieldOf("templates").forGetter(Config::templates),
 			TemplatePlacement.CODEC.fieldOf("placement").forGetter(Config::placement),
 			PasteConfig.CODEC.fieldOf("paste").forGetter(Config::paste),
 			DecoratorConfig.CODEC.fieldOf("decorator").forGetter(Config::decorator)

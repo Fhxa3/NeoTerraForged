@@ -11,9 +11,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.GrassBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
-import net.minecraft.world.level.block.SpreadingSnowyDirtBlock;
+import net.minecraft.world.level.block.SnowyBlock;
+import net.minecraft.world.level.block.SpreadingSnowyBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -53,9 +53,9 @@ public class DecorateSnowFeature extends Feature<Config> {
 		GeneratorContext generatorContext;
 		if((Object) randomState instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
 			ChunkGenerator generator = placeContext.chunkGenerator();
-			ChunkPos chunkPos = new ChunkPos(placeContext.origin());
-			int chunkX = chunkPos.x;
-			int chunkZ = chunkPos.z;
+			ChunkPos chunkPos = ChunkPos.containing(placeContext.origin());
+			int chunkX = chunkPos.x();
+			int chunkZ = chunkPos.z();
 			ChunkAccess chunk = level.getChunk(chunkX, chunkZ);
 			Tile.Chunk tileChunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
 			raccoonman.reterraforged.world.worldgen.cell.heightmap.Heightmap heightmap = generatorContext.generator.getHeightmap();
@@ -76,7 +76,7 @@ public class DecorateSnowFeature extends Feature<Config> {
 				        pos.set(worldX, surfaceY, worldZ);
 				        
 				        if(config.erode) {
-				        	if(level.getBiome(pos).value().getTemperature(pos) <= 0.25) {
+				        	if(level.getBiome(pos).value().getTemperature(pos, level.getSeaLevel()) <= 0.25) {
 					            float var = -ColumnDecorator.sampleNoise(worldX, worldZ, 16, 0);
 					            float hNoise = rand.compute(worldX, worldZ, 4) * erodeConfig.heightModifier();
 					            float sNoise = rand.compute(worldX, worldZ, 5) * erodeConfig.slopeModifier();
@@ -126,13 +126,13 @@ public class DecorateSnowFeature extends Feature<Config> {
     }
 
     private static void erodeSnow(ChunkAccess chunk, BlockPos.MutableBlockPos pos) {
-        chunk.setBlockState(pos, Blocks.AIR.defaultBlockState(), false);
+        chunk.setBlockState(pos, Blocks.AIR.defaultBlockState(), 0);
 
         if (pos.getY() > 0) {
             pos.setY(pos.getY() - 1);
             BlockState below = chunk.getBlockState(pos);
-            if (below.hasProperty(GrassBlock.SNOWY)) {
-                chunk.setBlockState(pos, below.setValue(GrassBlock.SNOWY, false), false);
+            if (below.hasProperty(SnowyBlock.SNOWY)) {
+                chunk.setBlockState(pos, below.setValue(SnowyBlock.SNOWY, false), 0);
             }
         }
     }
@@ -146,7 +146,7 @@ public class DecorateSnowFeature extends Feature<Config> {
             if (layer.is(Blocks.AIR)) {
                 return;
             }
-            chunk.setBlockState(pos, layer, false);
+            chunk.setBlockState(pos, layer, 0);
 
            fixBaseBlock(chunk, pos, layer, level);
         }
@@ -159,8 +159,8 @@ public class DecorateSnowFeature extends Feature<Config> {
 
             // Turns to dirt if submerged or the light-level is low. Light hasn't been calc'd at this
             // at this stage of world-gen so just blanket set everything to snowy dirt.
-            if (below.getBlock() instanceof SpreadingSnowyDirtBlock) {
-                chunk.setBlockState(pos1, Blocks.DIRT.defaultBlockState(), false);
+            if (below.getBlock() instanceof SpreadingSnowyBlock) {
+                chunk.setBlockState(pos1, Blocks.DIRT.defaultBlockState(), 0);
             }
         }
     }

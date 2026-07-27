@@ -6,14 +6,14 @@ import com.mojang.serialization.Codec;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 import raccoonman.reterraforged.registries.RTFBuiltInRegistries;
 import raccoonman.reterraforged.world.worldgen.feature.template.template.TemplateContext;
 
 public interface TemplateDecorator<T extends TemplateContext> {
     public static final Codec<TemplateDecorator<?>> CODEC = RTFBuiltInRegistries.TEMPLATE_DECORATOR_TYPE.byNameCodec().dispatch(TemplateDecorator::codec, Function.identity());
     
-    void apply(LevelAccessor level, T buffer, RandomSource random, boolean modified);
+    void apply(WorldGenLevel level, T buffer, RandomSource random, boolean modified);
     
     MapCodec<? extends TemplateDecorator<T>> codec();
 }

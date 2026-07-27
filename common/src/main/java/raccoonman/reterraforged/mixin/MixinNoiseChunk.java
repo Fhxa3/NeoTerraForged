@@ -65,8 +65,6 @@ class MixinNoiseChunk {
 	@ModifyVariable(
 		method = "<init>",
 		at = @At("HEAD"),
-		name = "fluidPicker",
-		index = 7,
 		ordinal = 0,
 		argsOnly = true
 	)

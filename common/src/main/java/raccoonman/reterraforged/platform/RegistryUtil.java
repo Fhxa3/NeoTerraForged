@@ -9,7 +9,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.GameRules;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
 
@@ -54,11 +53,6 @@ public final class RegistryUtil {
 
 	@ExpectPlatform
 	public static <T> void createDataRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, boolean synced) {
-		throw new IllegalStateException();
-	}
-
-	@ExpectPlatform
-	public static <T extends GameRules.Value<T>> GameRules.Key<T> registerGameRule(String name, GameRules.Category category, GameRules.Type<T> type) {
 		throw new IllegalStateException();
 	}
 

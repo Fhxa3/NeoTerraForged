@@ -48,7 +48,7 @@ public class MixinNoiseChunk {
     }
 
 	@Shadow
-    private DensityFunction wrap(DensityFunction densityFunction) {
+    protected DensityFunction wrap(DensityFunction densityFunction) {
 		throw new IllegalStateException();
     }
 }

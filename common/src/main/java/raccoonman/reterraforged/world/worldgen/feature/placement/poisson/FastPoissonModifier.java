@@ -62,8 +62,8 @@ public class FastPoissonModifier extends PlacementModifier {
 		long levelSeed = level.getSeed();
 		int seed = (int) levelSeed + 234523;
 		ChunkPos chunkPos = chunk.getPos();
-        int chunkX = chunkPos.x;
-        int chunkZ = chunkPos.z;
+        int chunkX = chunkPos.x();
+        int chunkZ = chunkPos.z();
         FastPoisson poisson = FastPoisson.LOCAL_POISSON.get();
         DensityNoise density = this.getDensityNoise(seed, chunkPos, level.getLevel().getChunkSource().randomState());
         FastPoissonContext poissonConfig = new FastPoissonContext(this.radius, this.jitter, this.scale, density);
@@ -84,7 +84,7 @@ public class FastPoissonModifier extends PlacementModifier {
 		
 		if (this.biomeFade > BiomeVariance.MIN_FADE) {
 			if((Object) randomState instanceof RTFRandomState rtfRandomState) {
-				Tile.Chunk reader = rtfRandomState.generatorContext().cache.provideAtChunk(chunkPos.x, chunkPos.z).getChunkReader(chunkPos.x, chunkPos.z);
+				Tile.Chunk reader = rtfRandomState.generatorContext().cache.provideAtChunk(chunkPos.x(), chunkPos.z()).getChunkReader(chunkPos.x(), chunkPos.z());
 				if (reader != null) {
 					biomeVariance = new BiomeVariance(reader, this.biomeFade);
 				}

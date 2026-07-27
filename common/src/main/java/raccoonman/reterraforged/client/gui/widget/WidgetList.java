@@ -2,10 +2,9 @@ package raccoonman.reterraforged.client.gui.widget;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -37,8 +36,8 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     }
 
     @Override
-    protected boolean isSelectedItem(int i) {
-        return this.renderSelected && Objects.equals(this.getSelected(), this.children().get(i));
+    protected boolean entriesCanBeSelected() {
+        return this.renderSelected;
     }
 
     @Override
@@ -47,7 +46,7 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
     }
 
     @Override
-    protected int getScrollbarPosition() {
+    protected int scrollBarX() {
         return this.getRowRight();
     }
 
@@ -68,18 +67,19 @@ public class WidgetList<T extends AbstractWidget> extends ContainerObjectSelecti
         }
 
         @Override
-        public void render(GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float partialTicks) {
+        public void extractContent(GuiGraphicsExtractor graphics, int mouseX, int mouseY, boolean hovered, float a) {
+            int width = this.getWidth();
             int optionWidth = Math.min(396, width);
             int padding = (width - optionWidth) / 2;
-            widget.setX(left + padding);
-            widget.setY(top);
+            widget.setX(this.getX() + padding);
+            widget.setY(this.getY());
             widget.visible = true;
             widget.setWidth(optionWidth);
-            widget.setHeight(height - 1);
+            widget.setHeight(this.getHeight() - 1);
             if(widget instanceof PresetEditorPage.Preview preview) {
             	widget.setHeight(widget.getWidth());
             }
-            widget.render(guiGraphics, mouseX, mouseY, partialTicks);
+            widget.extractRenderState(graphics, mouseX, mouseY, a);
         }
 
 		@Override

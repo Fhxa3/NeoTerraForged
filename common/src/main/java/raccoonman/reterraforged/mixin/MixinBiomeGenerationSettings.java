@@ -18,6 +18,6 @@ public interface MixinBiomeGenerationSettings {
 	@Accessor
 	List<HolderSet<PlacedFeature>> getFeatures();
 
-	@Accessor
-	void setFlowerFeatures(Supplier<List<ConfiguredFeature<?, ?>>> flowerFeatures);
+	@Accessor("boneMealFeatures")
+	void setBoneMealFeatures(Supplier<List<ConfiguredFeature<?, ?>>> boneMealFeatures);
 }

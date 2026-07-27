@@ -1,7 +1,5 @@
 package raccoonman.reterraforged.world.worldgen.densityfunction;
 
-import com.mojang.serialization.Codec;
-
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -6,17 +6,17 @@ import java.util.Map;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import raccoonman.reterraforged.world.worldgen.feature.template.template.TemplateContext;
 
-public record DecoratorConfig<T extends TemplateContext>(List<TemplateDecorator<T>> defaultDecorator, Map<ResourceLocation, List<TemplateDecorator<T>>> biomeDecorators) {
+public record DecoratorConfig<T extends TemplateContext>(List<TemplateDecorator<T>> defaultDecorator, Map<Identifier, List<TemplateDecorator<T>>> biomeDecorators) {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static final Codec<DecoratorConfig<?>> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 		TemplateDecorator.CODEC.listOf().fieldOf("default_decorator").forGetter((c) -> (List) c.defaultDecorator()),
-		Codec.unboundedMap(ResourceLocation.CODEC, TemplateDecorator.CODEC.listOf()).fieldOf("biome_decorators").forGetter((c) -> (Map) c.biomeDecorators())
+		Codec.unboundedMap(Identifier.CODEC, TemplateDecorator.CODEC.listOf()).fieldOf("biome_decorators").forGetter((c) -> (Map) c.biomeDecorators())
 	).apply(instance, (defaultDecorator, biomeDecorators) -> new DecoratorConfig(defaultDecorator, biomeDecorators)));
 	
-    public List<TemplateDecorator<T>> getDecorators(ResourceLocation biome) {
+    public List<TemplateDecorator<T>> getDecorators(Identifier biome) {
         if (biome == null) {
             return this.defaultDecorator;
         }

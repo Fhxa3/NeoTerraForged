@@ -11,7 +11,6 @@ import com.mojang.serialization.Codec;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.RegistryDataLoader.RegistryData;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DataPackRegistriesHooks;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
@@ -52,10 +51,6 @@ public static void register(IEventBus bus) {
 
 	public static <T> void createDataRegistry(ResourceKey<Registry<T>> key, Codec<T> codec, boolean synced) {
 		DATA_REGISTRIES.add(new DataRegistry<>(key, codec, synced));
-	}
-
-	public static <T extends GameRules.Value<T>> GameRules.Key<T> registerGameRule(String name, GameRules.Category category, GameRules.Type<T> type) {
-		return GameRules.register(name, category, type);
 	}
 
 	public static List<RegistryData<?>> getDynamicRegistries() {

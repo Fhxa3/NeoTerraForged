@@ -79,7 +79,7 @@ public class StructureSettingsPage extends PresetEditorPage {
 				entry.disabled = value;
 			});
 			
-			this.left.addWidget(PresetWidgets.createLabel(key.location().toString()));
+			this.left.addWidget(PresetWidgets.createLabel(key.identifier().toString()));
 			this.left.addWidget(spacing);
 			this.left.addWidget(separation);
 			this.left.addWidget(salt);

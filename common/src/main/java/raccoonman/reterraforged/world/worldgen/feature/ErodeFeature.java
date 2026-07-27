@@ -48,9 +48,9 @@ public class ErodeFeature extends Feature<Config> {
 		@Nullable
 		GeneratorContext generatorContext;
 		if((Object) randomState instanceof RTFRandomState rtfRandomState && (generatorContext = rtfRandomState.generatorContext()) != null) {
-			ChunkPos chunkPos = new ChunkPos(placeContext.origin());
-			int chunkX = chunkPos.x;
-			int chunkZ = chunkPos.z;
+			ChunkPos chunkPos = ChunkPos.containing(placeContext.origin());
+			int chunkX = chunkPos.x();
+			int chunkZ = chunkPos.z();
 			ChunkGenerator generator = placeContext.chunkGenerator();
 			ChunkAccess chunk = level.getChunk(chunkX, chunkZ);
 			Tile.Chunk tileChunk = generatorContext.cache.provideAtChunk(chunkX, chunkZ).getChunkReader(chunkX, chunkZ);
@@ -121,16 +121,16 @@ public class ErodeFeature extends Feature<Config> {
                 if (cell.gradient > 0.975) {
                     state = Blocks.TERRACOTTA.defaultBlockState();
                 } else if (cell.gradient > 0.85) {
-                    state = Blocks.BROWN_TERRACOTTA.defaultBlockState();
+                    state = Blocks.DYED_TERRACOTTA.brown().defaultBlockState();
                 } else if (cell.gradient > 0.75) {
-                    state = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
+                    state = Blocks.DYED_TERRACOTTA.orange().defaultBlockState();
                 } else if (cell.gradient > 0.65) {
                     state = Blocks.TERRACOTTA.defaultBlockState();
                 }
             }
 
             for (int dy = 0; dy < 4; dy++) {
-                chunk.setBlockState(pos.setY(surfaceY - dy), state, false);
+                chunk.setBlockState(pos.setY(surfaceY - dy), state, 0);
             }
         }
 	}

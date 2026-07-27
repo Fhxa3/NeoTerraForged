@@ -3,7 +3,7 @@ package raccoonman.reterraforged.client.gui.widget;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
@@ -23,8 +23,8 @@ public class Label extends Button {
     }
 
 	@Override
-	public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
 		Minecraft minecraft = Minecraft.getInstance();
-        graphics.drawString(minecraft.font, this.getMessage(), this.getX(), this.getY() + (this.height - 8) / 2, 0xFFFFFF);
+        graphics.text(minecraft.font, this.getMessage(), this.getX(), this.getY() + (this.height - 8) / 2, 0xFFFFFFFF);
 	}
 }

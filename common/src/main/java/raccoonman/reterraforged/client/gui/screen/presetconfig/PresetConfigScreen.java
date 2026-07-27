@@ -40,7 +40,7 @@ public class PresetConfigScreen extends LinkedPageScreen {
 	public void onClose() {
 		super.onClose();
 
-		this.minecraft.setScreen(this.parent);
+		this.minecraft.gui.setScreen(this.parent);
 	}
 	
 	public void setSeed(long seed) {
@@ -56,6 +56,9 @@ public class PresetConfigScreen extends LinkedPageScreen {
 
 	public void applyPreset(PresetEntry preset) throws IOException {		
 		Pair<Path, PackRepository> path = this.parent.getDataPackSelectionSettings(this.parent.getUiState().getSettings().dataConfiguration());
+		if(path == null) {
+			return;
+		}
 		Path exportPath = path.getFirst().resolve("reterraforged-preset.zip");
 		this.exportAsDatapack(exportPath, preset);
 		PackRepository repository = path.getSecond();

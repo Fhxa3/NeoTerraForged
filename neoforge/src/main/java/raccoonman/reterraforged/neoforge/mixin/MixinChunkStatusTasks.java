@@ -36,7 +36,7 @@ public class MixinChunkStatusTasks {
 			GeneratorContext context = rtfRandomState.generatorContext();
 
 			if(context != null) {
-				context.cache.queueAtChunk(chunkPos.x, chunkPos.z);
+				context.cache.queueAtChunk(chunkPos.x(), chunkPos.z());
 			}
 		}
 	}
@@ -54,7 +54,7 @@ public class MixinChunkStatusTasks {
 			GeneratorContext context = rtfRandomState.generatorContext();
 
 			if(context != null) {
-				context.cache.dropAtChunk(chunkPos.x, chunkPos.z);
+				context.cache.dropAtChunk(chunkPos.x(), chunkPos.z());
 			}
 		}
 	}

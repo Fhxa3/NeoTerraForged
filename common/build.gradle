@@ -7,16 +7,12 @@ loom {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modImplementation "com.github.glitchfiend:TerraBlender-neoforge:${rootProject.minecraft_version}-${rootProject.terrablender_version}"
-	compileOnly "com.electronwill.night-config:toml:3.6.7"
+    implementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+    implementation "com.github.glitchfiend:TerraBlender-neoforge:${rootProject.minecraft_version}-${rootProject.terrablender_version}"
+	compileOnly "com.electronwill.night-config:toml:3.8.3"
 	//compileOnly "lithostitched-forge:1.0.0"
 }
 
 repositories {
 
-}
-
-remapJar {
-    archiveClassifier.set("${rootProject.minecraft_version}")
 }

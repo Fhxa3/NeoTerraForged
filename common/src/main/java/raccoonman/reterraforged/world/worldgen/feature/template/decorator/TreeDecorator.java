@@ -9,7 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.WorldGenLevel;
 
 record TreeDecorator(net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator decorator, net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator modifiedDecorator) implements TemplateDecorator<TreeContext> {
 	public static final MapCodec<TreeDecorator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -22,7 +22,7 @@ record TreeDecorator(net.minecraft.world.level.levelgen.feature.treedecorators.T
     }
 
     @Override
-    public void apply(LevelAccessor level, TreeContext buffer, RandomSource random, boolean modified) {
+    public void apply(WorldGenLevel level, TreeContext buffer, RandomSource random, boolean modified) {
     	Set<BlockPos> logs = buffer.logs();
     	Set<BlockPos> leaves = buffer.leaves();
     	

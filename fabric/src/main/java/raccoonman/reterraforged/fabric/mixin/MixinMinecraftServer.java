@@ -29,16 +29,6 @@ public class MixinMinecraftServer {
 	public FeatureTemplateManager reterraforged$RTFMinecraftServer$getFeatureTemplateManager() {
 		return this.templateManager;
 	}
-	
-	@Inject(
-		method = { "method_29440" },
-		require = 0,
-		at = @At("TAIL"),
-		remap = false
-	)
-	private void method_29440(CallbackInfo callback) {
-		this.templateManager.onReload(this.getResourceManager());
-	}
 
 	@Shadow
 	private ResourceManager getResourceManager() {

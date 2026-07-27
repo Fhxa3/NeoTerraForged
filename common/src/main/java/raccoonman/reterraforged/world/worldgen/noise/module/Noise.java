@@ -14,7 +14,7 @@ public interface Noise {
         if (noise instanceof Noises.HolderHolder holderHolder) {
             return holderHolder.holder();
         }
-        return new Holder.Direct<>(noise);
+        return Holder.direct(noise);
     });
     
 	float compute(float x, float z, int seed);

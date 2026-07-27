@@ -25,7 +25,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.RegistryDataLoader;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import raccoonman.reterraforged.mixin.MixinRegistrySetBuilder$EmptyTagLookup;
 
 public class DataGenUtilImpl {
@@ -71,7 +71,7 @@ public class DataGenUtilImpl {
 					}
 				}
 	            RegistryOps<JsonElement> ops = RegistryOps.create(JsonOps.INSTANCE, new HolderLookupAdapterButWithCursedPatchForOwnerJuggling(provider));
-	            return CompletableFuture.allOf(DynamicRegistries.getDynamicRegistries().stream().flatMap(arg3 -> this.dumpRegistryCap(arg, provider, ops, arg3).stream()).toArray(CompletableFuture[]::new));
+	            return CompletableFuture.allOf(DynamicRegistries.getWorldRegistries().stream().flatMap(arg3 -> this.dumpRegistryCap(arg, provider, ops, arg3).stream()).toArray(CompletableFuture[]::new));
 	        });
 	    }
 
@@ -79,15 +79,15 @@ public class DataGenUtilImpl {
 	        ResourceKey<? extends Registry<T>> resourcekey = registryData.key();
 
 	        return provider.lookup(resourcekey).map(lookup -> {
-	            PackOutput.PathProvider path = this.output.createPathProvider(PackOutput.Target.DATA_PACK, prefixNamespace(resourcekey.location()));
+	            PackOutput.PathProvider path = this.output.createPathProvider(PackOutput.Target.DATA_PACK, prefixNamespace(resourcekey.identifier()));
 	            Stream<Holder.Reference<T>> holders = lookup.listElements();
 	            return CompletableFuture.allOf(holders.map((ref) -> {
-	            	return dumpValue(path.json(ref.key().location()), output, ops, registryData.elementCodec(), ref.value());
+	            	return dumpValue(path.json(ref.key().identifier()), output, ops, registryData.elementCodec(), ref.value());
 	            }).toArray(CompletableFuture[]::new));
 	        });
 	    }
 
-	    private static String prefixNamespace(ResourceLocation location) {
+	    private static String prefixNamespace(Identifier location) {
 	        return location.getNamespace().equals("minecraft") ? location.getPath() : location.getNamespace() +  "/"  + location.getPath();
 	    }
 

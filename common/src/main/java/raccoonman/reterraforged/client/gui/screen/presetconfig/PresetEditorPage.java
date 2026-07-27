@@ -4,27 +4,27 @@ import java.awt.Color;
 import java.io.IOException;
 import java.util.Optional;
 
+import org.joml.Matrix3x2fStack;
+
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationContext;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import raccoonman.reterraforged.RTFCommon;
 import raccoonman.reterraforged.client.data.RTFTranslationKeys;
 import raccoonman.reterraforged.client.gui.screen.page.BisectedPage;
@@ -122,8 +122,8 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    private static final int FACTOR = 4;
 	    public static final int SIZE = (1 << 4) << FACTOR;
 	    private static final float[] LEGEND_SCALES = { 1, 0.9F, 0.75F, 0.6F };
-	    private DynamicTexture texture = new DynamicTexture(new NativeImage(SIZE, SIZE, false));
-	    private ResourceLocation textureId = Minecraft.getInstance().getTextureManager().register(RTFCommon.MOD_ID + "-preview-framebuffer", this.texture); 
+	    private Identifier textureId = Identifier.fromNamespaceAndPath(RTFCommon.MOD_ID, "preview_framebuffer");
+	    private DynamicTexture texture = new DynamicTexture(this.textureId::toString, new NativeImage(SIZE, SIZE, false));
 	    private Tile tile;
 	    private int centerX, centerZ;
 	    
@@ -146,6 +146,7 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 			        }
 	        	}
 	        }, DEFAULT_NARRATION);
+	        Minecraft.getInstance().getTextureManager().register(this.textureId, this.texture);
 	    }
 
 	    public void regenerate() {
@@ -190,9 +191,9 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        NativeImage pixels = this.texture.getPixels();
 	        this.tile.iterate((cell, x, z) -> {
 	            if (x < stroke || z < stroke || x >= width - stroke || z >= width - stroke) {
-	                pixels.setPixelRGBA(x, z, Color.BLACK.getRGB());
+	                pixels.setPixelABGR(x, z, Color.BLACK.getRGB());
 	            } else {
-	                pixels.setPixelRGBA(x, z, renderMode.getColor(cell, levels));
+	                pixels.setPixelABGR(x, z, renderMode.getColor(cell, levels));
 	            }
 	        });
 	        this.texture.upload();
@@ -208,19 +209,16 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	    }
 
 	    @Override
-	    public void renderWidget(GuiGraphics guiGraphics, int mx, int my, float partialTicks) {
+	    protected void extractContents(GuiGraphicsExtractor graphics, int mx, int my, float partialTicks) {
 	    	int x = this.getX();
 	    	int y = this.getY();
-	    	
+
 	    	this.height = this.getWidth();
-	        RenderSystem.enableBlend();
-	        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-	        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-	    	guiGraphics.blit(this.textureId, x, y, 0, 0, this.width, this.height, this.width, this.height);
+	    	graphics.blit(RenderPipelines.GUI_TEXTURED, this.textureId, x, y, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 
 	    	this.updateLegend(mx, my);
 
-	    	this.renderLegend(guiGraphics, mx, my, this.legendLabels, this.legendValues, x, y + this.width, 10, 0xFFFFFF);
+	    	this.renderLegend(graphics, mx, my, this.legendLabels, this.legendValues, x, y + this.width, 10, 0xFFFFFFFF);
 	    }
 
 	    private boolean updateLegend(int mx, int my) {
@@ -265,13 +263,13 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	        return LEGEND_SCALES[index];
 	    }
 
-	    private void renderLegend(GuiGraphics guiGraphics, int mx, int my, Component[] labels, String[] values, int left, int top, int lineHeight, int color) {
+	    private void renderLegend(GuiGraphicsExtractor guiGraphics, int mx, int my, Component[] labels, String[] values, int left, int top, int lineHeight, int color) {
 	        float scale = this.getLegendScale();
-	        PoseStack pose = guiGraphics.pose();
-	        	
-	        pose.pushPose();
-	        pose.translate(left + 3.75F * scale, top - lineHeight * (3.2F * scale), 0);
-	        pose.scale(scale, scale, 1);
+	        Matrix3x2fStack pose = guiGraphics.pose();
+
+	        pose.pushMatrix();
+	        pose.translate(left + 3.75F * scale, top - lineHeight * (3.2F * scale));
+	        pose.scale(scale, scale);
 	
 	        Minecraft mc = Minecraft.getInstance();
 	        Font renderer = mc.font;
@@ -289,14 +287,14 @@ public abstract class PresetEditorPage extends BisectedPage<PresetConfigScreen, 
 	                value = value.substring(0, value.length() - 1);
 	            }
 	
-	            guiGraphics.drawString(renderer, label, 0, i * lineHeight, color);
-	            guiGraphics.drawString(renderer, value, spacing, i * lineHeight, color);
+	            guiGraphics.text(renderer, label, 0, i * lineHeight, color);
+	            guiGraphics.text(renderer, value, spacing, i * lineHeight, color);
 	        }
 	
-	        pose.popPose();
+	        pose.popMatrix();
 	
 	        if (!this.hoveredCoords.isEmpty()) {
-	        	guiGraphics.drawCenteredString(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFF);
+	        	guiGraphics.centeredText(renderer, this.hoveredCoords, mx, my - 10, 0xFFFFFFFF);
 	        }
 	    }
 	

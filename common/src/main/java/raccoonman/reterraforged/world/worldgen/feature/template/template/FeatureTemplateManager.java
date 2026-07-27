@@ -8,12 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.collect.ImmutableList;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 
 public class FeatureTemplateManager {
 	private ResourceManager resourceManager;
-	private Map<ResourceLocation, FeatureTemplate> cache;
+	private Map<Identifier, FeatureTemplate> cache;
 	
 	public FeatureTemplateManager(ResourceManager resourceManager) {
 		this.resourceManager = resourceManager;
@@ -25,11 +25,11 @@ public class FeatureTemplateManager {
 		this.cache.clear();
 	}
 	
-	public FeatureTemplate load(ResourceLocation location) {
+	public FeatureTemplate load(Identifier location) {
 		return this.cache.computeIfAbsent(location, this::read);
 	}
 	
-	private FeatureTemplate read(ResourceLocation location) {
+	private FeatureTemplate read(Identifier location) {
 		return this.resourceManager.getResource(location).flatMap((resource) -> {
 			try(InputStream stream = resource.open()) {
 				return FeatureTemplate.load(stream);

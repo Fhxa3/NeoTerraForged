@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.data.worldgen.SurfaceRuleData;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import raccoonman.reterraforged.RTFCommon;
@@ -19,9 +20,9 @@ import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule.Strata;
 // maybe have a custom meadow or cherry forest surface ?
 public class PresetSurfaceRuleData {
     
-    public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Noise> noise) {
+    public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Biome> biomes, HolderGetter<Noise> noise) {
 		return SurfaceRules.sequence(
-				SurfaceRuleData.overworld(),
+				SurfaceRuleData.overworld(biomes),
 				makeStrataRule(noise)
 		);
     }

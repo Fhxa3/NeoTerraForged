@@ -33,7 +33,7 @@ record AddModifier(Order order, GenerationStep.Decoration step, Optional<Filter>
 
 	@Override
 	public void apply(BiomeSelectionContext selectionContext, BiomeModificationContext modificationContext) {
-		if(this.biomes.isPresent() && !this.biomes.get().test(selectionContext.getBiomeRegistryEntry())) {
+		if(this.biomes.isPresent() && !this.biomes.get().test(selectionContext.getBiomeHolder())) {
 			return;
 		}
 		
@@ -47,7 +47,7 @@ record AddModifier(Order order, GenerationStep.Decoration step, Optional<Filter>
 
 		featureSteps.set(index, this.add(featureSteps.get(index)));
 		
-		this.rebuildFlowerFeatures(generationSettings);
+		this.rebuildBoneMealFeatures(generationSettings);
 	}
 
 	private HolderSet<PlacedFeature> add(@Nullable HolderSet<PlacedFeature> values) {

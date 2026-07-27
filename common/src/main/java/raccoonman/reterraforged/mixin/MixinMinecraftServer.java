@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.progress.LevelLoadListener;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.storage.ServerLevelData;
@@ -26,7 +27,7 @@ class MixinMinecraftServer {
 		),
 		method = "setInitialSpawn"
 	)
-    private static void findSpawnPosition(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean bl, boolean bl2, CallbackInfo callback) {
+    private static void findSpawnPosition(ServerLevel serverLevel, ServerLevelData serverLevelData, boolean bl, boolean bl2, LevelLoadListener levelLoadListener, CallbackInfo callback) {
 		RandomState randomState = serverLevel.getChunkSource().randomState();
 		Climate.Sampler sampler = randomState.sampler();
 		serverLevel.registryAccess().lookup(RTFRegistries.PRESET).flatMap((registry) -> {

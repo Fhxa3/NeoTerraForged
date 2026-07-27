@@ -2,6 +2,7 @@ package raccoonman.reterraforged.client.gui.widget;
 
 import java.util.function.Supplier;
 
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -24,9 +25,15 @@ public class ValueButton<T> extends Button {
 		this.setValue(initial);
 	}
 	
+	@Override
+	protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+		this.extractDefaultSprite(graphics);
+		this.extractDefaultLabel(graphics.textRendererForWidget(this, GuiGraphicsExtractor.HoveredTextEffects.NONE));
+	}
+
 	public void setValue(T value) {
 		this.value = value;
-		
+
 		this.setMessage(CommonComponents.optionNameValue(this.name, Component.literal(this.value.toString())));
 	}
 	

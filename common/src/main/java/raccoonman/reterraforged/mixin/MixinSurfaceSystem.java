@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.PositionalRandomFactory;
@@ -25,9 +25,9 @@ import raccoonman.reterraforged.world.worldgen.surface.rule.StrataRule;
 @Mixin(SurfaceSystem.class)
 @Implements(@Interface(iface = RTFSurfaceSystem.class, prefix = RTFCommon.MOD_ID + "$RTFSurfaceSystem$"))
 class MixinSurfaceSystem {
-	private static final ResourceLocation GEOLOGY_RANDOM = RTFCommon.location("geology");
+	private static final Identifier GEOLOGY_RANDOM = RTFCommon.location("geology");
 	private RandomState randomState;
-	private Map<ResourceLocation, List<List<StrataRule.Layer>>> strata;
+	private Map<Identifier, List<List<StrataRule.Layer>>> strata;
 	
 	@Inject(
 		at = @At("TAIL"),
@@ -38,7 +38,7 @@ class MixinSurfaceSystem {
     	this.strata = new ConcurrentHashMap<>();
 	}
 	
-	public List<List<StrataRule.Layer>> reterraforged$RTFSurfaceSystem$getOrCreateStrata(ResourceLocation name, Function<RandomSource, List<List<StrataRule.Layer>>> strata) {
+	public List<List<StrataRule.Layer>> reterraforged$RTFSurfaceSystem$getOrCreateStrata(Identifier name, Function<RandomSource, List<List<StrataRule.Layer>>> strata) {
 		return this.strata.computeIfAbsent(name, (k) -> {
 			PositionalRandomFactory factory = this.randomState.getOrCreateRandomFactory(GEOLOGY_RANDOM);
 			return strata.apply(factory.fromHashOf(k));

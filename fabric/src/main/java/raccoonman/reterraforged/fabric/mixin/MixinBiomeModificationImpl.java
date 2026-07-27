@@ -19,7 +19,7 @@ import net.fabricmc.fabric.api.biome.v1.ModificationPhase;
 import net.fabricmc.fabric.impl.biome.modification.BiomeModificationImpl;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import raccoonman.reterraforged.registries.RTFRegistries;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.BiomeModifier;
 import raccoonman.reterraforged.world.worldgen.biome.modifier.fabric.FabricBiomeModifier;
@@ -44,7 +44,7 @@ public class MixinBiomeModificationImpl {
 		List<Object> modifiers = this.getSortedModifiers();
 		for(Holder.Reference<BiomeModifier> holder : registries.lookupOrThrow(RTFRegistries.BIOME_MODIFIER).listElements().toList()) {
 			if(holder.value() instanceof FabricBiomeModifier modifier) {
-				modifiers.add(this.makeModifierRecord(holder.key().location(), ModificationPhase.POST_PROCESSING, (ctx) -> {
+				modifiers.add(this.makeModifierRecord(holder.key().identifier(), ModificationPhase.POST_PROCESSING, (ctx) -> {
 					return true;
 				}, modifier::apply));
 			}
@@ -58,7 +58,7 @@ public class MixinBiomeModificationImpl {
 		throw new UnsupportedOperationException();
 	}
 	
-	private Object makeModifierRecord(ResourceLocation id, ModificationPhase phase, Predicate<BiomeSelectionContext> selector, BiConsumer<BiomeSelectionContext, BiomeModificationContext> modifier) {
+	private Object makeModifierRecord(Identifier id, ModificationPhase phase, Predicate<BiomeSelectionContext> selector, BiConsumer<BiomeSelectionContext, BiomeModificationContext> modifier) {
 		try {
 			return CTOR.newInstance(phase, id, selector, modifier);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
@@ -70,7 +70,8 @@ public class MixinBiomeModificationImpl {
 	static {
 		Constructor<?> ctor;
 		try {
-			ctor = Class.forName("net.fabricmc.fabric.impl.biome.modification.BiomeModificationImpl$ModifierRecord").getDeclaredConstructor(ModificationPhase.class, ResourceLocation.class, Predicate.class, BiConsumer.class);
+			ctor = Class.forName("net.fabricmc.fabric.impl.biome.modification.BiomeModificationImpl$ModifierRecord").getDeclaredConstructor(ModificationPhase.class, Identifier.class, Predicate.class, BiConsumer.class);
+			ctor.setAccessible(true);
 		} catch (NoSuchMethodException | SecurityException | ClassNotFoundException e) {
 			e.printStackTrace();
 			ctor = null;
