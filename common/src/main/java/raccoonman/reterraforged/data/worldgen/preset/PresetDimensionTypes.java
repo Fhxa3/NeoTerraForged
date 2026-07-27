@@ -18,7 +18,6 @@ import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.level.CardinalLighting;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.timeline.Timeline;
@@ -34,7 +33,6 @@ public final class PresetDimensionTypes {
 		int worldDepth = properties.worldDepth;
 		int totalHeight = worldDepth + worldHeight;
 
-		HolderGetter<Block> blocks = ctx.lookup(Registries.BLOCK);
 		HolderGetter<Timeline> timelines = ctx.lookup(Registries.TIMELINE);
 		HolderGetter<WorldClock> clocks = ctx.lookup(Registries.WORLD_CLOCK);
 		EnvironmentAttributeMap overworldAttributes = EnvironmentAttributeMap.builder()
@@ -58,7 +56,7 @@ public final class PresetDimensionTypes {
         	-worldDepth,
         	totalHeight,
         	totalHeight,
-        	blocks.getOrThrow(BlockTags.INFINIBURN_OVERWORLD),
+        	BlockTags.INFINIBURN_OVERWORLD,
         	0.0F,
         	new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
         	DimensionType.Skybox.OVERWORLD,

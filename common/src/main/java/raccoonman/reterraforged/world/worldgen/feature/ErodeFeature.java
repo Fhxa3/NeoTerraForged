@@ -121,9 +121,9 @@ public class ErodeFeature extends Feature<Config> {
                 if (cell.gradient > 0.975) {
                     state = Blocks.TERRACOTTA.defaultBlockState();
                 } else if (cell.gradient > 0.85) {
-                    state = Blocks.DYED_TERRACOTTA.brown().defaultBlockState();
+                    state = Blocks.BROWN_TERRACOTTA.defaultBlockState();
                 } else if (cell.gradient > 0.75) {
-                    state = Blocks.DYED_TERRACOTTA.orange().defaultBlockState();
+                    state = Blocks.ORANGE_TERRACOTTA.defaultBlockState();
                 } else if (cell.gradient > 0.65) {
                     state = Blocks.TERRACOTTA.defaultBlockState();
                 }

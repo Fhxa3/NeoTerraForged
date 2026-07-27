@@ -22,7 +22,7 @@ public class PresetSurfaceRuleData {
     
     public static SurfaceRules.RuleSource overworld(Preset preset, HolderGetter<DensityFunction> densityFunctions, HolderGetter<Biome> biomes, HolderGetter<Noise> noise) {
 		return SurfaceRules.sequence(
-				SurfaceRuleData.overworld(biomes),
+				SurfaceRuleData.overworld(),
 				makeStrataRule(noise)
 		);
     }

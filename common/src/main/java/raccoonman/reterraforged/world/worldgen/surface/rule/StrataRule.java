@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,8 +50,8 @@ public record StrataRule(Identifier name, Holder<Noise> selector, List<Strata> s
 	}
 
 	@Override
-	public MapCodec<StrataRule> codec() {
-		return CODEC;
+	public KeyDispatchDataCodec<StrataRule> codec() {
+		return new KeyDispatchDataCodec<>(CODEC);
 	}
 	
 	private List<List<Layer>> generateStrata(RandomSource random) {

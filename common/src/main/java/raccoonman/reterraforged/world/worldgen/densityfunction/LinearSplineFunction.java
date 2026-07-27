@@ -18,8 +18,8 @@ import raccoonman.reterraforged.world.worldgen.noise.NoiseUtil;
 
 public record LinearSplineFunction(DensityFunction input, List<Pair<Double, DensityFunction>> points, double minValue, double maxValue) implements DensityFunction {
 	public static final MapCodec<LinearSplineFunction> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		DensityFunction.CODEC.fieldOf("input").forGetter(LinearSplineFunction::input),
-		ExtraCodecs.nonEmptyList(Codec.pair(Codec.DOUBLE, DensityFunction.CODEC).listOf()).fieldOf("points").forGetter(LinearSplineFunction::points)
+		DensityFunction.HOLDER_HELPER_CODEC.fieldOf("input").forGetter(LinearSplineFunction::input),
+		ExtraCodecs.nonEmptyList(Codec.pair(Codec.DOUBLE, DensityFunction.HOLDER_HELPER_CODEC).listOf()).fieldOf("points").forGetter(LinearSplineFunction::points)
 	).apply(instance, LinearSplineFunction::new));
 	
 	public LinearSplineFunction(DensityFunction input, List<Pair<Double, DensityFunction>> points) {
@@ -60,10 +60,10 @@ public record LinearSplineFunction(DensityFunction input, List<Pair<Double, Dens
 	}
 
 	@Override
-	public DensityFunction mapChildren(Visitor visitor) {
-		return new LinearSplineFunction(visitor.apply(this.input), this.points.stream().map((point) -> {
-			return Pair.of(point.getFirst(), visitor.apply(point.getSecond()));
-		}).toList());
+	public DensityFunction mapAll(Visitor visitor) {
+		return visitor.apply(new LinearSplineFunction(this.input.mapAll(visitor), this.points.stream().map((point) -> {
+			return Pair.of(point.getFirst(), point.getSecond().mapAll(visitor));
+		}).toList()));
 	}
 
 	@Override

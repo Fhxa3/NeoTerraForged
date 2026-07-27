@@ -25,13 +25,13 @@ license="MIT"
 [[dependencies.reterraforged]]
     modId="neoforge"
     mandatory=true
-    versionRange="[26.2,)"
+    versionRange="[26.1,26.2)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.reterraforged]]
 	modId = "minecraft"
 	mandatory = true
-	versionRange = "[26.2,)"
+	versionRange = "[26.1,26.2)"
 	ordering = "NONE"
 	side = "BOTH"

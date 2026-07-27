@@ -11,7 +11,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 
 public record ConditionalFlatCache(DensityFunction function) implements MarkerFunction {
 	public static final MapCodec<ConditionalFlatCache> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-		DensityFunction.CODEC.fieldOf("function").forGetter(ConditionalFlatCache::function)
+		DensityFunction.HOLDER_HELPER_CODEC.fieldOf("function").forGetter(ConditionalFlatCache::function)
 	).apply(instance, ConditionalFlatCache::new));
 
 	@Override
@@ -25,8 +25,8 @@ public record ConditionalFlatCache(DensityFunction function) implements MarkerFu
 	}
 
 	@Override
-	public DensityFunction mapChildren(Visitor visitor) {
-		return new ConditionalFlatCache(visitor.apply(this.function));
+	public DensityFunction mapAll(Visitor visitor) {
+		return visitor.apply(new ConditionalFlatCache(this.function.mapAll(visitor)));
 	}
 	
 	public class Cache implements MarkerFunction.Mapped {
