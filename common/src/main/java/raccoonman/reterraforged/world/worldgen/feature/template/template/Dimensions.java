@@ -13,6 +13,6 @@ public record Dimensions(BlockPos min, BlockPos max) {
     }
 
     public int getSizeZ() {
-        return this.max.getY() - this.min.getY();
+        return this.max.getZ() - this.min.getZ();
     }
 }

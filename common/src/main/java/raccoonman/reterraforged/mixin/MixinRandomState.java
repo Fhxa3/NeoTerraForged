@@ -58,7 +58,9 @@ class MixinRandomState {
 	private Preset preset;
 	
 	private long seed;
-	
+	@Nullable
+	private NoiseGeneratorSettings noiseGeneratorSettings;
+
 	@Redirect(
 		at = @At(
 			value = "INVOKE",
@@ -69,6 +71,7 @@ class MixinRandomState {
 	)
 	private NoiseRouter RandomState(NoiseRouter router, DensityFunction.Visitor visitor, NoiseGeneratorSettings noiseGeneratorSettings, HolderGetter<NormalNoise.NoiseParameters> params, final long seed) {
 		this.seed = seed;
+		this.noiseGeneratorSettings = noiseGeneratorSettings;
 		this.densityFunctionWrapper = new DensityFunction.Visitor() {
 			
 			@Override
@@ -92,6 +95,12 @@ class MixinRandomState {
 	}
 
 	public void reterraforged$RTFRandomState$initialize(RegistryAccess registries) {
+		// RTF terrain only targets the overworld noise settings; other dimensions must
+		// not spawn a GeneratorContext or have their functions wrapped
+		if(!this.isOverworldSettings(registries)) {
+			this.hasContext = false;
+			return;
+		}
 		RegistryLookup<Preset> presets = registries.lookupOrThrow(RTFRegistries.PRESET);
 		RegistryLookup<Noise> noises = registries.lookupOrThrow(RTFRegistries.NOISE);
 		RegistryLookup<DensityFunction> functions = registries.lookupOrThrow(Registries.DENSITY_FUNCTION);
@@ -122,6 +131,15 @@ class MixinRandomState {
 		});
 	}
 	
+	private boolean isOverworldSettings(RegistryAccess registries) {
+		if(this.noiseGeneratorSettings == null) {
+			return true;
+		}
+		return registries.lookupOrThrow(Registries.NOISE_SETTINGS).getResourceKey(this.noiseGeneratorSettings)
+			.map(NoiseGeneratorSettings.OVERWORLD::equals)
+			.orElse(false);
+	}
+
 	@Nullable
 	public Preset reterraforged$RTFRandomState$preset() {
 		return this.preset;

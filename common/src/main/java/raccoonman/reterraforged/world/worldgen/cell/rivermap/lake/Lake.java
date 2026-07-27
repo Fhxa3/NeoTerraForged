@@ -21,7 +21,8 @@ public class Lake {
     
     public Lake(Vec2f center, float radius, float multiplier, LakeConfig config) {
         float lake = radius * multiplier;
-        float valley = 275.0F * multiplier;
+        float smoothRange = Math.max(50.0F, config.sizeRange * 2.0F);
+        float valley = lake + smoothRange * multiplier;
         this.valley = valley;
         this.valley2 = valley * valley;
         this.center = center;
@@ -32,7 +33,7 @@ public class Lake {
         this.bankAlphaMax = Math.min(1.0F, this.bankAlphaMin + 0.275F);
         this.bankAlphaRange = this.bankAlphaMax - this.bankAlphaMin;
         this.lakeDistance2 = lake * lake;
-        this.valleyDistance2 = this.valley2 - this.lakeDistance2;
+        this.valleyDistance2 = Math.max(this.valley2 - this.lakeDistance2, 1.0E-6F);
     }
     
     public void apply(Cell cell, float x, float z) {
@@ -66,6 +67,7 @@ public class Lake {
         } else if (valleyAlpha > 1.0F) {
             valleyAlpha = 1.0F;
         }
+        valleyAlpha *= valleyAlpha;
         cell.height = NoiseUtil.lerp(cell.height, bankHeight, valleyAlpha);
         cell.riverMask *= 1.0F - valleyAlpha;
         cell.riverMask = Math.min(cell.riverMask, 1.0F - valleyAlpha);

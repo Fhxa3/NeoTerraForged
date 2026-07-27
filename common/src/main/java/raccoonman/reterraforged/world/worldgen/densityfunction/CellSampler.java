@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.core.QuartPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.util.StringRepresentable;
@@ -49,9 +48,6 @@ public record CellSampler(Supplier<WorldLookup> deferredLookup, Field field) imp
 		private Cell cell = new Cell();
 		
 		public Cell getAndUpdate(WorldLookup lookup, int blockX, int blockZ, boolean sampleClimate) {
-			blockX = QuartPos.toBlock(QuartPos.fromBlock(blockX));
-			blockZ = QuartPos.toBlock(QuartPos.fromBlock(blockZ));
-			
 			long packedPos = PosUtil.pack(blockX, blockZ);
 			if(this.lastPos != packedPos) {
 				lookup.applyCell(this.cell.reset(), blockX, blockZ, false, sampleClimate);

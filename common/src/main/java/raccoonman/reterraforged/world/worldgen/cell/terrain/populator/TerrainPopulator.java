@@ -5,6 +5,7 @@ import raccoonman.reterraforged.world.worldgen.cell.Cell;
 import raccoonman.reterraforged.world.worldgen.cell.CellPopulator;
 import raccoonman.reterraforged.world.worldgen.cell.terrain.Terrain;
 import raccoonman.reterraforged.world.worldgen.noise.module.Noise;
+import raccoonman.reterraforged.world.worldgen.noise.module.Noises;
 
 public record TerrainPopulator(Terrain type, Noise base, Noise height, Noise erosion, Noise weirdness, float baseScale, float heightScale, float weight) implements CellPopulator, WeightedPopulator {
     
@@ -24,6 +25,7 @@ public record TerrainPopulator(Terrain type, Noise base, Noise height, Noise ero
     }
     
     public static TerrainPopulator make(Terrain type, Noise base, Noise height, Noise erosion, Noise weirdness, TerrainSettings.Terrain settings) {
-    	return new TerrainPopulator(type, base, height, erosion, weirdness, settings.baseScale, settings.verticalScale, settings.weight);
+    	// height noise gets sampled repeatedly at the same column by blending/selection; a 2d cache pays for itself
+    	return new TerrainPopulator(type, base, Noises.cache2d(height), erosion, weirdness, settings.baseScale, settings.verticalScale, settings.weight);
     }
 }

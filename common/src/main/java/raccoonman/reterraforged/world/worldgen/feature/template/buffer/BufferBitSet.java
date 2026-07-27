@@ -19,8 +19,10 @@ public class BufferBitSet {
         this.sizeX = Math.max(x1, x2) - this.minX;
         this.sizeY = Math.max(y1, y2) - this.minY;
         this.sizeZ = Math.max(z1, z2) - this.minZ;
-        this.sizeXZ = this.sizeX * this.sizeZ;
-        int size = this.sizeX * this.sizeY * this.sizeZ;
+        long area = (long) this.sizeX * this.sizeZ;
+        long volume = area * this.sizeY;
+        this.sizeXZ = (int) Math.min(area, Integer.MAX_VALUE);
+        int size = (int) Math.min(volume, Integer.MAX_VALUE);
         if (this.bitSet == null || this.bitSet.length() < size) {
         	this.bitSet = new BitSet(size);
         } else {
